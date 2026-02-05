@@ -78,9 +78,8 @@ function validateRequiredEnv(env: MoltbotEnv): string[] {
     if (!env.AI_GATEWAY_BASE_URL) {
       missing.push('AI_GATEWAY_BASE_URL (required when using AI_GATEWAY_API_KEY)');
     }
-  } else if (!env.ANTHROPIC_API_KEY) {
-    // Direct Anthropic access requires API key
-    missing.push('ANTHROPIC_API_KEY or AI_GATEWAY_API_KEY');
+  } else if (!env.ANTHROPIC_API_KEY && !env.ANTHROPIC_OAUTH_TOKEN) {
+    missing.push('ANTHROPIC_API_KEY or ANTHROPIC_OAUTH_TOKEN or AI_GATEWAY_API_KEY');
   }
 
   return missing;
@@ -255,8 +254,8 @@ app.all('*', async (c) => {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
     let hint = 'Check worker logs with: wrangler tail';
-    if (!c.env.ANTHROPIC_API_KEY) {
-      hint = 'ANTHROPIC_API_KEY is not set. Run: wrangler secret put ANTHROPIC_API_KEY';
+    if (!c.env.ANTHROPIC_API_KEY && !c.env.ANTHROPIC_OAUTH_TOKEN) {
+      hint = 'ANTHROPIC_API_KEY or ANTHROPIC_OAUTH_TOKEN is not set. Run: wrangler secret put ANTHROPIC_API_KEY (or ANTHROPIC_OAUTH_TOKEN for Claude subscription)';
     } else if (errorMessage.includes('heap out of memory') || errorMessage.includes('OOM')) {
       hint = 'Gateway ran out of memory. Try again or check for memory leaks.';
     }
