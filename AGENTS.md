@@ -233,6 +233,41 @@ npx wrangler secret list
 
 Enable debug routes with `DEBUG_ROUTES=true` and check `/debug/processes`.
 
+## Fork Customizations (smilebank7/openclaw-sandbox)
+
+This fork has the following customizations from upstream [cloudflare/moltworker](https://github.com/cloudflare/moltworker).
+
+**When syncing with upstream, resolve conflicts by keeping these values:**
+
+### R2 Bucket Name
+
+| File | Upstream | This Fork |
+|------|----------|-----------|
+| `wrangler.jsonc` | `moltbot-data` | `openclaw-data` |
+| `src/config.ts` | `moltbot-data` | `openclaw-data` |
+| `src/types.ts` (comment) | `moltbot-data` | `openclaw-data` |
+
+### ANTHROPIC_OAUTH_TOKEN Support
+
+Added support for Claude subscription OAuth token authentication:
+
+| File | Change |
+|------|--------|
+| `src/types.ts` | Added `ANTHROPIC_OAUTH_TOKEN?: string` to `MoltbotEnv` |
+| `src/gateway/env.ts` | Pass `ANTHROPIC_OAUTH_TOKEN` to container |
+| `src/index.ts` | Include `ANTHROPIC_OAUTH_TOKEN` in required env validation |
+
+### Upstream Sync
+
+```bash
+git fetch upstream
+git rebase upstream/main
+# Resolve conflicts by keeping this fork's values (see tables above)
+git push origin main --force-with-lease
+```
+
+---
+
 ## R2 Storage Notes
 
 R2 is mounted via s3fs at `/data/moltbot`. Important gotchas:
